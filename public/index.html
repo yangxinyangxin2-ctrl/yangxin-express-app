@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Express on IGA Pages</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #fafaf9;
+        color: #1c1917;
+        min-height: 100vh;
+      }
+
+      .hero {
+        background: linear-gradient(160deg, #1c1917 60%, #292524);
+        color: #fafaf9;
+        padding: 4.5rem 1.5rem 3.5rem;
+        text-align: center;
+      }
+
+      .hero-badge {
+        display: inline-block;
+        padding: 0.3rem 0.9rem;
+        border: 1px solid #78716c;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        color: #a8a29e;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        margin-bottom: 1.4rem;
+      }
+
+      .hero h1 {
+        font-size: 2.8rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1.15;
+        margin-bottom: 1rem;
+      }
+
+      .hero h1 em {
+        font-style: normal;
+        background: linear-gradient(135deg, #f97316, #eab308);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .hero-sub {
+        color: #a8a29e;
+        font-size: 1.05rem;
+        line-height: 1.6;
+        max-width: 480px;
+        margin: 0 auto;
+      }
+
+      .content {
+        max-width: 680px;
+        margin: 0.5rem auto 0;
+        padding: 0 1.5rem 3rem;
+      }
+
+      /* Terminal */
+      .terminal {
+        background: #1c1917;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+      }
+
+      .terminal-bar {
+        display: flex;
+        align-items: center;
+        padding: 0.7rem 1rem;
+        background: #292524;
+        gap: 0.45rem;
+      }
+
+      .dot { width: 10px; height: 10px; border-radius: 50%; }
+      .dot.r { background: #ef4444; }
+      .dot.y { background: #eab308; }
+      .dot.g { background: #22c55e; }
+
+      .terminal-bar span:last-child {
+        flex: 1;
+        text-align: center;
+        color: #78716c;
+        font-size: 0.78rem;
+        font-family: monospace;
+      }
+
+      .terminal-body {
+        padding: 1.2rem 1.4rem;
+        overflow-x: auto;
+      }
+
+      .terminal-body pre {
+        margin: 0;
+        font-family: "SF Mono", "Fira Code", monospace;
+        font-size: 0.82rem;
+        line-height: 1.7;
+        color: #d6d3d1;
+      }
+
+      .kw { color: #f97316; }
+      .str { color: #fbbf24; }
+      .fn { color: #38bdf8; }
+      .cm { color: #57534e; font-style: italic; }
+
+      /* Try it */
+      .try-section {
+        margin-top: 2rem;
+        background: #fff;
+        border: 1px solid #e7e5e4;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      .try-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.2rem;
+        border-bottom: 1px solid #e7e5e4;
+      }
+
+      .try-header h2 {
+        font-size: 0.95rem;
+        font-weight: 700;
+      }
+
+      .try-url {
+        font-family: monospace;
+        font-size: 0.8rem;
+        color: #78716c;
+        background: #f5f5f4;
+        padding: 0.3rem 0.7rem;
+        border-radius: 6px;
+      }
+
+      .try-url b { color: #166534; }
+
+      .try-body {
+        padding: 1.2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.8rem;
+      }
+
+      .btn-run {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: #f97316;
+        color: #fff;
+        border: none;
+        padding: 0.6rem 1.3rem;
+        border-radius: 8px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+
+      .btn-run:hover { background: #ea580c; }
+      .btn-run:active { transform: scale(0.97); }
+
+      .resp-box {
+        width: 100%;
+        background: #1c1917;
+        border-radius: 8px;
+        padding: 1rem 1.1rem;
+        display: none;
+        animation: fadeIn 0.2s ease;
+      }
+
+      .resp-box.open { display: block; }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-3px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .resp-meta {
+        display: flex;
+        gap: 0.6rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .resp-status {
+        font-family: monospace;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 0.15rem 0.5rem;
+        border-radius: 3px;
+        background: #166534;
+        color: #bbf7d0;
+      }
+
+      .resp-time {
+        font-family: monospace;
+        font-size: 0.72rem;
+        color: #78716c;
+      }
+
+      .resp-box pre {
+        font-family: "SF Mono", monospace;
+        font-size: 0.8rem;
+        line-height: 1.6;
+        color: #fbbf24;
+        white-space: pre-wrap;
+      }
+
+      /* Steps */
+      .steps {
+        margin-top: 2rem;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.8rem;
+      }
+
+      .step {
+        padding: 1.2rem;
+        background: #fff;
+        border: 1px solid #e7e5e4;
+        border-radius: 10px;
+      }
+
+      .step-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px; height: 26px;
+        border-radius: 50%;
+        background: #fff7ed;
+        color: #ea580c;
+        font-weight: 800;
+        font-size: 0.8rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .step h3 { font-size: 0.85rem; margin-bottom: 0.25rem; }
+      .step p { font-size: 0.78rem; color: #78716c; line-height: 1.45; }
+      .step code { background: #f5f5f4; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.73rem; }
+
+      .footer {
+        text-align: center;
+        margin-top: 2.5rem;
+        color: #a8a29e;
+        font-size: 0.8rem;
+      }
+
+      @media (max-width: 640px) {
+        .hero h1 { font-size: 2rem; }
+        .steps { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="hero">
+      <h1>Run <em>Express</em> as<br/>Serverless Functions</h1>
+      <p class="hero-sub">
+        No servers to manage. Just export your Express app and it runs on IGA Pages.
+      </p>
+    </div>
+
+    <div class="content">
+      <div class="terminal">
+        <div class="terminal-bar">
+          <i class="dot r"></i><i class="dot y"></i><i class="dot g"></i>
+          <span>api/express/[[default]].js</span>
+        </div>
+        <div class="terminal-body"><pre><span class="kw">import</span> express <span class="kw">from</span> <span class="str">'express'</span>;
+
+<span class="kw">const</span> app = <span class="fn">express</span>();
+app.<span class="fn">use</span>(express.<span class="fn">json</span>());
+
+app.<span class="fn">get</span>(<span class="str">'/'</span>, (req, res) =&gt; {
+  res.<span class="fn">json</span>({ message: <span class="str">'Hello from Express on Node Functions!'</span> });
+});
+
+<span class="cm">// No app.listen() — just export</span>
+<span class="kw">export default</span> app;</pre></div>
+      </div>
+
+      <div class="try-section">
+        <div class="try-header">
+          <h2>Try it</h2>
+          <span class="try-url"><b>GET</b> /api/express</span>
+        </div>
+        <div class="try-body">
+          <button class="btn-run" onclick="run()">&#9654; Execute API Call</button>
+          <div class="resp-box" id="resp">
+            <div class="resp-meta">
+              <span class="resp-status" id="rs">200</span>
+              <span class="resp-time" id="rt"></span>
+            </div>
+            <pre id="rp"></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">Express + IGA Pages &mdash; Serverless, your way.</div>
+    </div>
+
+    <script>
+      async function run() {
+        var box = document.getElementById("resp");
+        var pre = document.getElementById("rp");
+        var rs = document.getElementById("rs");
+        var rt = document.getElementById("rt");
+        pre.textContent = "...";
+        rs.textContent = "---";
+        rs.style.background = "#57534e";
+        rt.textContent = "";
+        box.classList.add("open");
+        var t0 = performance.now();
+        try {
+          var res = await fetch("/api/express");
+          var ms = Math.round(performance.now() - t0);
+          var data = await res.json();
+          rs.textContent = res.status;
+          rs.style.background = res.ok ? "#166534" : "#991b1b";
+          rt.textContent = ms + "ms";
+          pre.textContent = JSON.stringify(data, null, 2);
+        } catch (e) {
+          rs.textContent = "ERR";
+          rs.style.background = "#991b1b";
+          pre.textContent = e.message + "\n\nTip: run  iga pages dev  to start the server.";
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "express-app",
+  "version": "1.0.0",
+  "description": "Node Functions on IGA Pages - Express",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
